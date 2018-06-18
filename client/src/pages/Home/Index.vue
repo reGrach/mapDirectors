@@ -37,7 +37,7 @@
         <gmap-info-window v-if="m.isVisible">
           <b>Person name: </b>{{m.title}}
           <br>
-          <b>Birth place: </b>{{m.place}} 
+          <b>Birth place: </b>{{m.label}} 
         </gmap-info-window>
       </gmap-marker>
   </gmap-map>
@@ -55,6 +55,7 @@
     components: {
       VLayout
     },
+    
     data() {
       return {
         yearFrom:1900,
@@ -66,6 +67,7 @@
     },
     methods: {
       onFindClick() {
+        this.deleteMarkers()
         axios.get('/peopleInfo', {
             params: {
               yearFrom: this.yearFrom,
@@ -86,9 +88,25 @@
     
       },
       addMarker(place, marker, personName) {
-        this.markers.push({ position: marker, title: personName, place, isVisible: false });
+        marker = new google.maps.Marker({
+          position: new google.maps.LatLng(marker),
+          title: personName,
+          label: place,
+          isVisible: false});
+          
+        //this.markers.push({ position: marker, title: personName, place, isVisible: false });
+        this.markers.push(marker)
         this.places.push(place);
       },
+
+      deleteMarkers() {
+        for (var i = 0; i < this.markers.length; i++) {
+          this.markers[i].setMap(null);
+        }
+        this.markers = [];
+        this.places = [];
+      },
+      
       showDetail(selected) {
         debugger
         this.markers = this.markers.map(marker => {
